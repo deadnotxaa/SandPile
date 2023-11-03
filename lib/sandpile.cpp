@@ -1,5 +1,15 @@
 #include "sandpile.h"
 
-void add_new_grain(const int16_t& x, const int16_t& y, const uint64_t& value) {
+
+void PrintModel(SandPile* pile) {
+    for (int i = 0; i < pile->height; ++i) {
+        for (int j = 0; j < pile->width; ++j) {
+            std::cout << pile->pile_model_board[i][j] << ' ';
+        }
+        std::cout << std::endl;
+    }
+}
+
+void Destruction(SandPile* model) {
 
 }

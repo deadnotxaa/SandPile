@@ -1,8 +1,8 @@
 #include "parser.h"
 
-Arguments Parser(int argc, char** argv) {
+Arguments Parse(int argc, char** argv) {
     Arguments args;
-    std::string_view argument;
+    std::string argument;
 
     for (int i = 1; i < argc; ++i) {
         argument = argv[i];
@@ -38,12 +38,75 @@ uint64_t FromChar(char* argument) {
     return 1;
 }
 
-uint64_t FromChar(std::string_view argument) {
-    return 1;
+uint64_t FromChar(const std::string& argument) {
+    return std::stoll(argument);
 }
 
-void ErrorHandler(Error) {
+Coordinates GetMinimalSquare(std::string& file_name) {
+    std::ifstream file(file_name, std::ios_base::binary);
 
+    if (!file.good()) {
+        ErrorHandler(kWrongFilename);
+    }
+
+    Coordinates max_coordinates = Coordinates::GetMinCoordinates();
+    Coordinates min_coordinates = Coordinates::GetMaxCoordinates();
+
+    int16_t x;
+    int16_t y;
+    uint64_t value;
+
+    while (file >> x >> y >> value) {
+        if (x > max_coordinates.x) {
+            max_coordinates.x = x;
+        }
+        if (x < min_coordinates.x) {
+            min_coordinates.x = x;
+        }
+        if (y > max_coordinates.y) {
+            max_coordinates.y = y;
+        }
+        if (y < min_coordinates.y) {
+            min_coordinates.y = y;
+        }
+    }
+
+    file.close();
+
+    return Coordinates{
+            static_cast<int16_t>(max_coordinates.x - min_coordinates.x + 1),
+            static_cast<int16_t>(max_coordinates.y - min_coordinates.y + 1),
+            static_cast<int16_t>(-min_coordinates.x),
+            static_cast<int16_t>(-min_coordinates.y)
+    };
+}
+
+void AddAllGrains(SandPile* pile, std::string& file_name) {
+    std::ifstream file(file_name, std::ios_base::binary);
+
+    int16_t x;
+    int16_t y;
+    uint64_t value;
+
+    while (file >> x >> y >> value) {
+        pile->pile_model_board[x + pile->height_alignment][y + pile->width_alignment] = value;
+    }
+
+    file.close();
+}
+
+void ErrorHandler(Error error) {
+    switch (error) {
+        case kWrongDirectoryPath:
+            std::cerr << "Wrong directory!\n";
+            exit(0b1);
+        case kWrongFilename:
+            std::cerr << "Wrong filename!\n";
+            exit(0b10);
+        default:
+            std::cerr << "Unhandled error\n";
+            exit(0b11);
+    }
 }
 
 void HelpMessage() {
