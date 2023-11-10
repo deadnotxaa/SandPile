@@ -5,9 +5,9 @@
 #include <iostream>
 
 struct SandPile {
-    uint64_t **pile_model_board;
-    int16_t height;
-    int16_t width;
+    uint64_t **pile_model_board{};
+    int16_t height = 0;
+    int16_t width = 0;
     int16_t width_alignment = 0;
     int16_t height_alignment = 0;
 
@@ -26,8 +26,20 @@ struct SandPile {
 
         std::cout << "Created Sand Pile " << height << 'x' << width << '\n';
     }
+
+    SandPile() = default;
+
 };
 
-void PrintModel(SandPile *);
+enum Direction {
+    kUp,
+    kDown,
+    kLeft,
+    kRight
+};
 
-void Destruction(SandPile *);
+void PrintModel(const SandPile&);
+
+void Destruction(SandPile&, uint64_t);
+
+void Resize(SandPile&, SandPile&, Direction);

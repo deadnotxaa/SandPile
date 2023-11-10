@@ -17,12 +17,16 @@ int main(int argc, char** argv) {
             );
 
     AddAllGrains(model, args.file_name);
-    PrintModel(model);
+    PrintModel(*model);
+
+    std::cout << min_square.x << ' ' << min_square.y << '\n'
+    << "filename: " << args.file_name << "\nsave directory: " << args.image_directory_path <<
+    "\nmax iterations: " << args.max_model_iterations << "\nfrequency: " << args.image_save_frequency << '\n';
+
+    Destruction(*model, args.max_model_iterations);
+    PrintModel(*model);
 
     return 0;
 }
 
-/*std::cout << min_square.x << ' ' << min_square.y << '\n';
-
-  std::cout << "filename: " << args.file_name << "\nsave directory: " << args.image_directory_path <<
-  "\nmax iterations: " << args.max_model_iterations << "\nfrequency: " << args.image_save_frequency << '\n';*/
+/**/
