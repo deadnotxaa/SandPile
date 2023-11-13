@@ -14,7 +14,7 @@ SandPile::SandPile(int16_t model_height, int16_t model_width, int16_t width_al, 
     }
 }
 
-bool Destruction(SandPile& model, uint64_t iterations, uint64_t save_frequency) {
+bool Destruction(SandPile& model, uint64_t iterations, uint64_t save_frequency, uint64_t& iteration_number) {
     SandPile model_duplicate = model;
 
     model_duplicate.matrix = new uint64_t *[model.height];
@@ -29,9 +29,9 @@ bool Destruction(SandPile& model, uint64_t iterations, uint64_t save_frequency) 
     }
 
     bool is_full_destructed = false;
-    bool is_all_grains_done = true;
+    bool is_all_grains_done;
 
-    for (int i = 0; i < iterations && !is_full_destructed; ++i) {
+    for (int i = 0; i < iterations && !is_full_destructed; ++i, ++iteration_number) {
         is_all_grains_done = true;
         for (int j = 0; j < model.height; ++j) {
             for (int k = 0; k < model.width; ++k) {

@@ -99,19 +99,19 @@ void GetColor(uint64_t value, unsigned char* color) {
             color[2] = 0xFF;
             break;
         case 1:
-            color[0] = 0x34;
-            color[1] = 0xF5;
-            color[2] = 0x67;
+            color[0] = 0x00;
+            color[1] = 0xFF;
+            color[2] = 0x00;
             break;
         case 2:
-            color[0] = 0x7F;
+            color[0] = 0xFF;
             color[1] = 0x00;
             color[2] = 0xFF;
             break;
         case 3:
-            color[0] = 0xFF;
+            color[0] = 0;
             color[1] = 0xFF;
-            color[2] = 0x70;
+            color[2] = 0xFF;
             break;
         default:
             color[0] = 0x00;

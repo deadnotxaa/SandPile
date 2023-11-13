@@ -108,5 +108,15 @@ void ErrorHandler(Error error) {
 }
 
 void HelpMessage() {
-    std::cout << "h\n";
+    std::cout << "\n Usage:\tlabwork3-deadnotxaa.exe [Options] -i filename.tsv\n\n"
+                 " Options:\n"
+                 "\t-h, --help \t\t\tShows this message\n"
+                 "\t-i, --input=filename.tsv\tPath to tsv-file with starting values (necessary argument)\n"
+                 "\t-o, --output\t\t\tPath to directory for saving images (unnecessary argument, by default -- current directory)\n"
+                 "\t-m, --max-iter=n\t\tMaximum number of model iterations (unnecessary argument, by default -- until full destruction)\n"
+                 "\t-f, --frequency=n\t\tFrequency of saving images (unnecessary argument, by default -- after full destruction)\n"
+                 "\n Example:\n"
+                 "\tlabwork3-deadnotxaa.exe -i test.txt -o ../img -m 1000 -f 50\n\n";
+
+    exit(0);
 }

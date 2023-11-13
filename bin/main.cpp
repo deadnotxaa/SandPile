@@ -2,7 +2,7 @@
 #include "lib/sandpile.h"
 #include "lib/bmp.h"
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     Arguments args;
     args = Parse(argc, argv);
 
@@ -14,22 +14,22 @@ int main(int argc, char** argv) {
             min_rectangle.x,
             min_rectangle.width_alignment,
             min_rectangle.height_alignment
-            );
+    );
 
     // Reads .tsv and place all grains
     AddAllGrains(model, args.file_name);
 
     // Imitates destruction of Sand Pile and creates .bmp
-    if (args.image_save_frequency == 0) {
-        Destruction(*model, args.max_model_iterations, args.image_save_frequency);
+    uint64_t iteration_number = 0;
+
+    uint16_t file_number = 0;
+    while (!Destruction(*model, args.max_model_iterations, args.image_save_frequency, iteration_number)) {
         BMP *image = new BMP(*model);
-        image->WriteFile(*model, 0, args.image_directory_path);
-    } else {
-        uint16_t file_number = 0;
-        while (!Destruction(*model, args.max_model_iterations, args.image_save_frequency)) {
-            BMP *image = new BMP(*model);
-            image->WriteFile(*model, file_number++, args.image_directory_path);
+        image->WriteFile(*model, file_number++, args.image_directory_path);
+        if (iteration_number >= args.max_model_iterations) {
+            break;
         }
     }
+
     return 0;
 }
