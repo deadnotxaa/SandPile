@@ -57,4 +57,3 @@ void AddAllGrains(SandPile *, std::string &);
 void ErrorHandler(Error);
 
 void HelpMessage();
-

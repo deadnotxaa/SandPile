@@ -7,7 +7,6 @@ void PrintModel(const SandPile& pile) {
         }
         std::cout << std::endl;
     }
-    std::cout << "hxw: " << pile.height << 'x' << pile.width << '\n';
 }
 
 void Destruction(SandPile& model, uint64_t iterations) {

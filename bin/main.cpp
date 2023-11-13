@@ -1,5 +1,6 @@
 #include "lib/parser.h"
 #include "lib/sandpile.h"
+#include "lib/bmp.h"
 #include <iostream>
 #include <string>
 
@@ -24,9 +25,9 @@ int main(int argc, char** argv) {
     "\nmax iterations: " << args.max_model_iterations << "\nfrequency: " << args.image_save_frequency << '\n';
 
     Destruction(*model, args.max_model_iterations);
+    BMP *image = new BMP(*model);
+    image->WriteFile(*model);
     PrintModel(*model);
 
     return 0;
 }
-
-/**/
