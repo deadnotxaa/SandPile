@@ -63,34 +63,16 @@ BMP::BMP(SandPile &model) {
     file_info_header[15] = 0;
 
     // Other is not specified
-
-    /*file_info_header[32] = 5;
-    file_info_header[36] = 5;
-
-    file_info_header[40] = 255;
-    file_info_header[41] = 255;
-    file_info_header[42] = 255;
-    file_info_header[43] = 0;
-
-    file_info_header[44] = 200;
-    file_info_header[45] = 100;
-    file_info_header[46] = 170;
-    file_info_header[47] = 0;
-
-    file_info_header[48] = 70;
-    file_info_header[49] = 140;
-    file_info_header[50] = 200;
-    file_info_header[51] = 0;
-
-    file_info_header[52] = 0;
-    file_info_header[53] = 0;
-    file_info_header[54] = 0;
-    file_info_header[55] = 0;*/
 }
 
-void BMP::WriteFile(const SandPile& model) {
+void BMP::WriteFile(const SandPile& model, uint16_t number, std::string& path) {
     std::fstream file;
-    file.open("image.bmp", std::fstream::out | std::fstream::binary);
+
+    std::string file_name = path + "image";
+    file_name.append(std::to_string(number));
+    file_name.append(".bmp");
+
+    file.open(file_name, std::fstream::out | std::fstream::binary);
 
     file.write(reinterpret_cast<char*>(file_header), kHeaderSize);
     file.write(reinterpret_cast<char*>(file_info_header), kInfoHeaderSize);
@@ -100,7 +82,7 @@ void BMP::WriteFile(const SandPile& model) {
             unsigned char color[] = {0xFF, 0xFF, 0xFF};
 
             if (i < model.height && j < model.width) {
-                GetColor(model.pile_model_board[i][j], color);
+                GetColor(model.matrix[i][j], color);
             }
 
             file.write(reinterpret_cast<char*>(color), 3);

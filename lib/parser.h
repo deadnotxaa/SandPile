@@ -40,7 +40,6 @@ struct Coordinates {
 };
 
 enum Error {
-    kWrongDirectoryPath,
     kWrongFilename
 };
 

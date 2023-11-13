@@ -35,11 +35,26 @@ Arguments Parse(int argc, char** argv) {
 }
 
 uint64_t FromChar(char* argument) {
-    return 1;
+    char* p_end{};
+    return std::strtol(argument, &p_end, 10);
 }
 
 uint64_t FromChar(const std::string& argument) {
     return std::stoll(argument);
+}
+
+void AddAllGrains(SandPile* sand_pile, std::string& file_name) {
+    std::ifstream file(file_name, std::ios_base::binary);
+
+    int16_t x;
+    int16_t y;
+    uint64_t value;
+
+    while (file >> x >> y >> value) {
+        sand_pile->matrix[x + sand_pile->height_alignment][y + sand_pile->width_alignment] = value;
+    }
+
+    file.close();
 }
 
 Coordinates GetMinimalSquare(std::string& file_name) {
@@ -81,31 +96,14 @@ Coordinates GetMinimalSquare(std::string& file_name) {
     };
 }
 
-void AddAllGrains(SandPile* pile, std::string& file_name) {
-    std::ifstream file(file_name, std::ios_base::binary);
-
-    int16_t x;
-    int16_t y;
-    uint64_t value;
-
-    while (file >> x >> y >> value) {
-        pile->pile_model_board[x + pile->height_alignment][y + pile->width_alignment] = value;
-    }
-
-    file.close();
-}
-
 void ErrorHandler(Error error) {
     switch (error) {
-        case kWrongDirectoryPath:
-            std::cerr << "Wrong directory!\n";
-            exit(0b1);
         case kWrongFilename:
             std::cerr << "Wrong filename!\n";
-            exit(0b10);
+            exit(0b01);
         default:
             std::cerr << "Unhandled error\n";
-            exit(0b11);
+            exit(0b10);
     }
 }
 

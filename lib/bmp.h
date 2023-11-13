@@ -13,9 +13,8 @@ struct BMP {
     uint16_t width;
     uint16_t height;
 
-
     explicit BMP(SandPile&);
-    void WriteFile(const SandPile&);
+    void WriteFile(const SandPile&, uint16_t, std::string&);
 };
 
 void GetColor(uint64_t, unsigned char*);
