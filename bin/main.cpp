@@ -3,15 +3,15 @@
 #include "lib/bmp.h"
 
 int main(int argc, char **argv) {
-    Arguments args;
-    args = Parse(argc, argv);
+    Arguments args = Parse(argc, argv);
 
     // Finds minimal rectangle to store Sand Pile
-    Coordinates min_rectangle = GetMinimalSquare(args.file_name);
+    RectangleBorders min_rectangle = GetMinimalRectangle(args.file_name);
 
-    auto *model = new SandPile(
-            min_rectangle.y,
-            min_rectangle.x,
+    // Creates minimal-sized Sand Pile
+    SandPile model(
+            min_rectangle.height,
+            min_rectangle.width,
             min_rectangle.width_alignment,
             min_rectangle.height_alignment
     );
@@ -19,17 +19,28 @@ int main(int argc, char **argv) {
     // Reads .tsv and place all grains
     AddAllGrains(model, args.file_name);
 
-    // Imitates destruction of Sand Pile and creates .bmp
-    uint64_t iteration_number = 0;
+    // Destruct Sand Pile and creates .bmp
+    bool is_destructed;
+    bool is_zero_freq = !args.image_save_frequency;
+    uint16_t image_number = 0;
 
-    uint16_t file_number = 0;
-    while (!Destruction(*model, args.max_model_iterations, args.image_save_frequency, iteration_number)) {
-        BMP *image = new BMP(*model);
-        image->WriteFile(*model, file_number++, args.image_directory_path);
-        if (iteration_number >= args.max_model_iterations) {
-            break;
+    for (int i = 0; i < args.max_model_iterations && !is_destructed; ++i) {
+        is_destructed = Destruction(model);
+
+        if (is_zero_freq) {
+            continue;
         }
+        if (i % args.image_save_frequency) {
+            continue;
+        }
+
+        BMP image(model);
+        image.WriteFile(model, image_number++, args.image_directory_path);
     }
+
+    // Save the last state of Sand Pile
+    BMP image(model);
+    image.WriteFile(model, image_number, args.image_directory_path);
 
     return 0;
 }

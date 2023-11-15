@@ -1,13 +1,13 @@
 #pragma once
 
 #include "sandpile.h"
-#include <string_view>
+#include <string>
 #include <cinttypes>
 #include <cstring>
 #include <iostream>
 #include <limits>
 #include <fstream>
-
+#include <algorithm>
 
 struct Arguments {
     std::string file_name;
@@ -16,22 +16,22 @@ struct Arguments {
     uint64_t image_save_frequency = 0;
 };
 
-struct Coordinates {
-    int16_t x = 0;
-    int16_t y = 0;
+struct RectangleBorders {
+    int16_t width = 0;
+    int16_t height = 0;
 
     int16_t width_alignment = 0;
     int16_t height_alignment = 0;
 
-    static Coordinates GetMaxCoordinates() {
-        return Coordinates{
+    static RectangleBorders GetMaxCoordinates() {
+        return RectangleBorders{
                 std::numeric_limits<int16_t>::max(),
                 std::numeric_limits<int16_t>::max()
         };
     }
 
-    static Coordinates GetMinCoordinates() {
-        return Coordinates{
+    static RectangleBorders GetMinCoordinates() {
+        return RectangleBorders{
                 std::numeric_limits<int16_t>::min(),
                 std::numeric_limits<int16_t>::min()
         };
@@ -40,18 +40,19 @@ struct Coordinates {
 };
 
 enum Error {
-    kWrongFilename
+    kWrongFilename,
+    kUnacceptableValue
 };
 
-Arguments Parse(int, char **);
+Arguments Parse(int, char**);
 
-uint64_t FromChar(char *);
+uint64_t FromChar(const char*);
 
-uint64_t FromChar(const std::string &);
+uint64_t FromStr(const std::string&);
 
-Coordinates GetMinimalSquare(std::string &);
+RectangleBorders GetMinimalRectangle(const std::string&);
 
-void AddAllGrains(SandPile *, std::string &);
+void AddAllGrains(const SandPile&, const std::string&);
 
 void ErrorHandler(Error);
 

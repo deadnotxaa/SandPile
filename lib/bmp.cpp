@@ -1,20 +1,17 @@
 #include "bmp.h"
 
-BMP::BMP(SandPile &model) {
-
+BMP::BMP(const SandPile &model) {
     if (model.width % 4 == 0) {
         width = model.width;
     } else {
         width = model.width + (4 - model.width % 4);
     }
+    height = model.height;
 
-    if (model.height % 4 == 0) {
-        height = model.height;
-    } else {
-        height = model.height + (4 - model.height % 4);
-    }
+    // Creation of palette
+    CreatePalette();
 
-    uint64_t size = kHeaderSize + kInfoHeaderSize + width * height * 3;
+    uint64_t size = kHeaderSize + kInfoHeaderSize + kPaletteSize + (width / 2) * height;
 
     // Bitmap File Header
     // BMP signature
@@ -30,7 +27,7 @@ BMP::BMP(SandPile &model) {
     // Reserved fields (6-9 bytes, not specified)
 
     // Data offset
-    file_header[10] = kHeaderSize + kInfoHeaderSize;
+    file_header[10] = kHeaderSize + kInfoHeaderSize + kPaletteSize;
     file_header[11] = 0;
     file_header[12] = 0;
     file_header[13] = 0;
@@ -59,64 +56,82 @@ BMP::BMP(SandPile &model) {
     file_info_header[13] = 0;
 
     // Bits per pixel
-    file_info_header[14] = 24;
+    file_info_header[14] = 4;
     file_info_header[15] = 0;
+
+    // Number of colors
+    file_info_header[32] = 5;
 
     // Other is not specified
 }
 
-void BMP::WriteFile(const SandPile& model, uint16_t number, std::string& path) {
-    std::fstream file;
-
-    std::string file_name = path + "image";
-    file_name.append(std::to_string(number));
-    file_name.append(".bmp");
-
-    file.open(file_name, std::fstream::out | std::fstream::binary);
+void BMP::WriteFile(const SandPile& model, uint16_t image_number, const std::string& path) {
+    std::ofstream file(CreateFilename(image_number, path), std::fstream::out | std::fstream::binary);
 
     file.write(reinterpret_cast<char*>(file_header), kHeaderSize);
     file.write(reinterpret_cast<char*>(file_info_header), kInfoHeaderSize);
+    file.write(reinterpret_cast<char*>(palette), kPaletteSize);
 
     for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            unsigned char color[] = {0xFF, 0xFF, 0xFF};
+        for (int j = 0; j < width; j += 2) {
+            uint8_t color = 0;
 
-            if (i < model.height && j < model.width) {
-                GetColor(model.matrix[i][j], color);
+            if (i < model.height && j + 1 < model.width) {
+                color = GetColor(model.matrix[i][j], model.matrix[i][j]);
             }
 
-            file.write(reinterpret_cast<char*>(color), 3);
+            file << color;
         }
     }
-    file.close();
 }
 
-void GetColor(uint64_t value, unsigned char* color) {
-    switch (value) {
-        case 0:
-            color[0] = 0xFF;
-            color[1] = 0xFF;
-            color[2] = 0xFF;
-            break;
-        case 1:
-            color[0] = 0x00;
-            color[1] = 0xFF;
-            color[2] = 0x00;
-            break;
-        case 2:
-            color[0] = 0xFF;
-            color[1] = 0x00;
-            color[2] = 0xFF;
-            break;
-        case 3:
-            color[0] = 0;
-            color[1] = 0xFF;
-            color[2] = 0xFF;
-            break;
-        default:
-            color[0] = 0x00;
-            color[1] = 0x00;
-            color[2] = 0x00;
-            break;
+void BMP::CreatePalette() {
+    palette[0] = kWhite.blue;
+    palette[1] = kWhite.green;
+    palette[2] = kWhite.red;
+    palette[3] = 0;
+
+    palette[4] = kGreen.blue;
+    palette[5] = kGreen.green;
+    palette[6] = kGreen.red;
+    palette[7] = 0;
+
+    palette[8] = kYellow.blue;
+    palette[9] = kYellow.green;
+    palette[10] = kYellow.red;
+    palette[11] = 0;
+
+    palette[12] = kPurple.blue;
+    palette[13] = kPurple.green;
+    palette[14] = kPurple.red;
+    palette[15] = 0;
+
+    palette[16] = kBlack.blue;
+    palette[17] = kBlack.green;
+    palette[18] = kBlack.red;
+    palette[19] = 0;
+}
+
+std::string BMP::CreateFilename(uint16_t image_number, const std::string& path) {
+    return path + "image" + std::to_string(image_number) + ".bmp";
+}
+
+uint8_t BMP::GetColor(uint64_t first_value, uint64_t second_value) {
+    uint8_t result;
+
+    if (first_value > 3) {
+        result = 4;
+    } else {
+        result = first_value;
     }
+
+    result = (result << 4);
+
+    if (second_value > 3) {
+        result += 4;
+    } else {
+        result += second_value;
+    }
+
+    return result;
 }

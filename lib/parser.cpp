@@ -2,48 +2,55 @@
 
 Arguments Parse(int argc, char** argv) {
     Arguments args;
-    std::string argument;
 
     for (int i = 1; i < argc; ++i) {
-        argument = argv[i];
-
-        if (std::strcmp("--help", argv[i]) == 0 || std::strcmp("-h", argv[i]) == 0) {
+        if (!std::strcmp("--help", argv[i]) || !std::strcmp("-h", argv[i])) {
             HelpMessage();
         }
 
-        if (std::strcmp("-i", argv[i - 1]) == 0) {
+        if (!std::strcmp("-i", argv[i - 1])) {
             args.file_name = argv[i];
-        } else if (std::strcmp("-o", argv[i - 1]) == 0) {
+        } else if (!std::strcmp("-o", argv[i - 1])) {
             args.image_directory_path = argv[i];
-        } else if (std::strcmp("-m", argv[i - 1]) == 0) {
+        } else if (!std::strcmp("-m", argv[i - 1])) {
             args.max_model_iterations = FromChar(argv[i]);
-        } else if (std::strcmp("-f", argv[i - 1]) == 0) {
+        } else if (!std::strcmp("-f", argv[i - 1])) {
             args.image_save_frequency = FromChar(argv[i]);
 
-        } else if (argument.substr(0, 7) == "--input") {
-            args.file_name = argument.substr(8);
-        } else if (argument.substr(0, 8) == "--output") {
-            args.image_directory_path = argument.substr(9);
-        } else if (argument.substr(0, 10) == "--max-iter") {
-            args.max_model_iterations = FromChar(argument.substr(11));
-        } else if (argument.substr(0, 6) == "--freq") {
-            args.image_save_frequency = FromChar(argument.substr(7));
+        } else if (!std::strncmp(argv[i], "--input=", std::strlen("--input="))) {
+            args.file_name = argv[i] + std::strlen("--input=");
+        } else if (!std::strncmp(argv[i], "--output=", std::strlen("--output="))) {
+            args.image_directory_path = argv[i] + std::strlen("--output=");
+        } else if (!std::strncmp(argv[i], "--max-iter=", std::strlen("--max-iter="))) {
+            args.max_model_iterations = FromStr(std::string(argv[i]).substr(std::strlen("--max-iter=")));
+        } else if (!std::strncmp(argv[i], "--freq=", std::strlen("--freq="))) {
+            args.image_save_frequency = FromStr(std::string(argv[i]).substr(std::strlen("--freq=")));
         }
     }
 
     return args;
 }
 
-uint64_t FromChar(char* argument) {
-    char* p_end{};
-    return std::strtol(argument, &p_end, 10);
+uint64_t FromChar(const char* argument) {
+    while (argument) {
+        if (*argument > '9' || *argument < '0') {
+            ErrorHandler(kUnacceptableValue);
+        }
+        argument++;
+    }
+
+    return std::stoull(argument);
 }
 
-uint64_t FromChar(const std::string& argument) {
-    return std::stoll(argument);
+uint64_t FromStr(const std::string& argument) {
+    if (!std::all_of(argument.begin(), argument.end(), ::isdigit)) {
+        ErrorHandler(kUnacceptableValue);
+    }
+
+    return std::stoull(argument);
 }
 
-void AddAllGrains(SandPile* sand_pile, std::string& file_name) {
+void AddAllGrains(const SandPile& sand_pile, const std::string& file_name) {
     std::ifstream file(file_name, std::ios_base::binary);
 
     int16_t x;
@@ -51,48 +58,36 @@ void AddAllGrains(SandPile* sand_pile, std::string& file_name) {
     uint64_t value;
 
     while (file >> x >> y >> value) {
-        sand_pile->matrix[x + sand_pile->height_alignment][y + sand_pile->width_alignment] = value;
+        sand_pile.matrix[x + sand_pile.height_alignment][y + sand_pile.width_alignment] = value;
     }
-
-    file.close();
 }
 
-Coordinates GetMinimalSquare(std::string& file_name) {
+RectangleBorders GetMinimalRectangle(const std::string& file_name) {
     std::ifstream file(file_name, std::ios_base::binary);
 
     if (!file.good()) {
         ErrorHandler(kWrongFilename);
     }
 
-    Coordinates max_coordinates = Coordinates::GetMinCoordinates();
-    Coordinates min_coordinates = Coordinates::GetMaxCoordinates();
+    RectangleBorders max_coordinates = RectangleBorders::GetMinCoordinates();
+    RectangleBorders min_coordinates = RectangleBorders::GetMaxCoordinates();
 
     int16_t x;
     int16_t y;
     uint64_t value;
 
     while (file >> x >> y >> value) {
-        if (x > max_coordinates.x) {
-            max_coordinates.x = x;
-        }
-        if (x < min_coordinates.x) {
-            min_coordinates.x = x;
-        }
-        if (y > max_coordinates.y) {
-            max_coordinates.y = y;
-        }
-        if (y < min_coordinates.y) {
-            min_coordinates.y = y;
-        }
+        max_coordinates.width = std::max(max_coordinates.width, x);
+        min_coordinates.width = std::min(min_coordinates.width, x);
+        max_coordinates.height = std::max(max_coordinates.height, y);
+        min_coordinates.height = std::min(min_coordinates.height, y);
     }
 
-    file.close();
-
-    return Coordinates{
-            static_cast<int16_t>(max_coordinates.x - min_coordinates.x + 1),
-            static_cast<int16_t>(max_coordinates.y - min_coordinates.y + 1),
-            static_cast<int16_t>(-min_coordinates.x),
-            static_cast<int16_t>(-min_coordinates.y)
+    return RectangleBorders{
+            static_cast<int16_t>(max_coordinates.width - min_coordinates.width + 1),
+            static_cast<int16_t>(max_coordinates.height - min_coordinates.height + 1),
+            static_cast<int16_t>(-min_coordinates.width),
+            static_cast<int16_t>(-min_coordinates.height)
     };
 }
 
@@ -100,11 +95,15 @@ void ErrorHandler(Error error) {
     switch (error) {
         case kWrongFilename:
             std::cerr << "Wrong filename!\n";
-            exit(0b01);
+            break;
+        case kUnacceptableValue:
+            std::cerr << "Unacceptable argument value!\n";
+            break;
         default:
-            std::cerr << "Unhandled error\n";
-            exit(0b10);
+            std::cerr << "Unhandled error!\n";
     }
+
+    exit(EXIT_FAILURE);
 }
 
 void HelpMessage() {

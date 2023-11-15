@@ -24,6 +24,6 @@ enum Direction {
     kRight
 };
 
-bool Destruction(SandPile&, uint64_t, uint64_t, uint64_t&);
+bool Destruction(SandPile&);
 
 void Resize(SandPile&, SandPile&, Direction);
