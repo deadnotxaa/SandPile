@@ -32,11 +32,15 @@ Arguments Parse(int argc, char** argv) {
 }
 
 uint64_t FromChar(const char* argument) {
-    while (argument) {
-        if (*argument > '9' || *argument < '0') {
+    const char* value = argument;
+    while (value) {
+        if (*value == '\0') {
+            break;
+        }
+        if (*value > '9' || *value < '0') {
             ErrorHandler(kUnacceptableValue);
         }
-        argument++;
+        value++;
     }
 
     return std::stoull(argument);
@@ -58,7 +62,7 @@ void AddAllGrains(const SandPile& sand_pile, const std::string& file_name) {
     uint64_t value;
 
     while (file >> x >> y >> value) {
-        sand_pile.matrix[x + sand_pile.height_alignment][y + sand_pile.width_alignment] = value;
+        sand_pile.matrix[y + sand_pile.height_alignment][x + sand_pile.width_alignment] = value;
     }
 }
 

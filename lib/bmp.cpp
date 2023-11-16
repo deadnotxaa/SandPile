@@ -1,10 +1,10 @@
 #include "bmp.h"
 
 BMP::BMP(const SandPile &model) {
-    if (model.width % 4 == 0) {
+    if (model.width % 8 == 0) {
         width = model.width;
     } else {
-        width = model.width + (4 - model.width % 4);
+        width = model.width + (8 - model.width % 8);
     }
     height = model.height;
 

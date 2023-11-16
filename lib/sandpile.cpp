@@ -1,11 +1,10 @@
 #include "sandpile.h"
 
-SandPile::SandPile(int16_t model_height, int16_t model_width, int16_t model_width_alignment, int16_t model_height_alignment)
-    : height(model_height)
-    , width(model_width)
-    , height_alignment(model_height_alignment)
-    , width_alignment(model_width_alignment)
-{
+SandPile::SandPile(int16_t model_height, int16_t model_width, int16_t model_width_alignment, int16_t model_height_alignment) {
+    height = model_height;
+    width = model_width;
+    height_alignment = model_height_alignment;
+    width_alignment = model_width_alignment;
     matrix = new uint64_t* [height]{};
     for (int i = 0; i < height; ++i) {
         matrix[i] = new uint64_t[width]{};
