@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(
-        labwork3-deadnotxaa
+        sand_pile_bmp
         VERSION 1.0
-        DESCRIPTION "LabWork 3"
+        DESCRIPTION "Abelian Sand Pile"
         LANGUAGES CXX
 )
 
